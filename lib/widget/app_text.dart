@@ -2,17 +2,19 @@ import 'package:flutter/material.dart';
 
 class AppText extends StatelessWidget {
   final String text;
-  final double size;
-  final FontWeight weight;
-  final Color color;
-  final TextAlign? align;
+  final double? size;         // optional
+  final FontWeight? weight;   // optional
+  final Color? color;         // optional
+  final TextAlign? align;     // optional
+  final double? height;       // optional line height
 
   const AppText(
       this.text, {
-        this.size = 14,
-        this.weight = FontWeight.normal,
-        this.color = Colors.black,
+        this.size,
+        this.weight,
+        this.color,
         this.align,
+        this.height,
         super.key,
       });
 
@@ -22,9 +24,10 @@ class AppText extends StatelessWidget {
       text,
       textAlign: align,
       style: TextStyle(
-        fontSize: size,
-        fontWeight: weight,
-        color: color,
+        fontSize: size ?? 14,               // default size if not provided
+        fontWeight: weight ?? FontWeight.normal, // default weight
+        color: color ?? Colors.black,       // default color
+        height: height,                     // optional line height
       ),
     );
   }

@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../controllers/signin_controller.dart';
 import '../widget/app_text.dart';
+import '../widget/app_textfield.dart';
 
 
 class LoginPage extends StatelessWidget {
-  final emailController = TextEditingController();
-  final passController = TextEditingController();
+
 
   @override
   Widget build(BuildContext context) {
+    final SignInController controller = Get.put(SignInController());
+
+
     return Scaffold(
       backgroundColor: Colors.grey[200],
 
@@ -60,37 +64,15 @@ class LoginPage extends StatelessWidget {
                   AppText("Email", weight: FontWeight.w500),
                   SizedBox(height: 6),
 
-                  TextField(
-                    controller: emailController,
-                    decoration: InputDecoration(
-                      hintText: "Enter your email",
-                      filled: true,
-                      fillColor: Colors.grey[300],
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide.none,
-                      ),
-                    ),
+                  AppTextField(
+                    hint: "Enter your email",
+                    controller: controller.emailController,
                   ),
-
-                  SizedBox(height: 15),
-
-                  /// Password
-                  AppText("Password", weight: FontWeight.w500),
-                  SizedBox(height: 6),
-
-                  TextField(
-                    controller: passController,
-                    obscureText: true,
-                    decoration: InputDecoration(
-                      hintText: "Enter password",
-                      filled: true,
-                      fillColor: Colors.grey[300],
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide.none,
-                      ),
-                    ),
+                  SizedBox(height: 30),
+                  AppTextField(
+                    hint: "Enter password",
+                    controller: controller.passController,
+                    isPassword: true,
                   ),
 
                   SizedBox(height: 30),
@@ -101,7 +83,8 @@ class LoginPage extends StatelessWidget {
                     height: 50,
                     child: ElevatedButton(
                       onPressed: () {
-                        Get.snackbar("Login", "Button clicked");
+
+                        controller.login();
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.green[800],

@@ -1,7 +1,10 @@
 import 'dart:async';
+import 'package:ayurvedic/view/secondary_registration_form.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'home.dart';
+import 'add_patient_view.dart';
+import 'booking_list.dart';
+import 'signin.dart';
 
 
 class SplashPage extends StatefulWidget {
@@ -16,7 +19,9 @@ class _SplashPageState extends State<SplashPage> {
     super.initState();
 
     Timer(Duration(seconds: 3), () {
-      Get.off(() => LoginPage());
+      Get.off(() =>
+          RegisterTreatmentPage());
+      //LoginPage());
     });
   }
 
