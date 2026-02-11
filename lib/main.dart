@@ -14,7 +14,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
-      title: "GetX Demo",
+      title: "ayurvedic project",
       home: SplashPage(),
     );
   }
