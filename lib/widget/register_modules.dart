@@ -163,7 +163,7 @@ class PaymentOption extends StatelessWidget {
                   child: RadioListTile<String>(
                     value: option,
                     groupValue: controller.selectedPayment.value,
-                    title: Text(option),
+                    title: Text(option,style: TextStyle(fontSize: 10),),
                     onChanged: (val) => controller.selectedPayment.value = val!,
                   ),
                 );

@@ -36,7 +36,10 @@ Future<Uint8List> generateInvoicePDF(PatientInvoice invoice) async {
             pw.SizedBox(height: 10),
 
             // Patient Details
-            pw.Text("Patient Details", style: pw.TextStyle(color: PdfColors.green, fontWeight: pw.FontWeight.bold)),
+            pw.Text(
+              "Patient Details",
+              style: pw.TextStyle(color: PdfColors.green, fontWeight: pw.FontWeight.bold),
+            ),
             pw.SizedBox(height: 10),
             pw.Row(
               mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
@@ -62,8 +65,11 @@ Future<Uint8List> generateInvoicePDF(PatientInvoice invoice) async {
 
             // Treatment Table
             pw.Table(
-              border: const pw.TableBorder(bottom: pw.BorderSide(style: pw.BorderStyle.dashed)),
+              border: const pw.TableBorder(
+                bottom: pw.BorderSide(style: pw.BorderStyle.dashed),
+              ),
               children: [
+                // Table Header
                 pw.TableRow(
                   children: [
                     pw.Text("Treatment", style: pw.TextStyle(color: PdfColors.green)),
@@ -72,9 +78,10 @@ Future<Uint8List> generateInvoicePDF(PatientInvoice invoice) async {
                     pw.Text("Total", style: pw.TextStyle(color: PdfColors.green)),
                   ],
                 ),
+                // Table Row
                 pw.TableRow(
                   children: [
-                    pw.Text("Treatment ${invoice.treatments}"), // You can map this id to name if needed
+                    pw.Text("Treatment ${invoice.treatments}"), // Replace with actual name if you map ID->Name
                     pw.Text(invoice.male.toString()),
                     pw.Text(invoice.female.toString()),
                     pw.Text((invoice.male + invoice.female).toString()),
@@ -91,17 +98,24 @@ Future<Uint8List> generateInvoicePDF(PatientInvoice invoice) async {
               child: pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.end,
                 children: [
-                  pw.Text("Total Amount: ₹${invoice.totalAmount}"),
-                  pw.Text("Discount: ₹${invoice.discountAmount}"),
-                  pw.Text("Advance: ₹${invoice.advanceAmount}"),
-
-                  pw.Text("Balance: ₹${invoice.balanceAmount}", style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 16)),
+                  pw.Text("Total Amount: Rs ${invoice.totalAmount}"),
+                  pw.Text("Discount: Rs ${invoice.discountAmount}"),
+                  pw.Text("Advance: Rs ${invoice.advanceAmount}"),
+                  pw.Text(
+                    "Balance: Rs ${invoice.balanceAmount}",
+                    style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 16),
+                  ),
                 ],
               ),
             ),
 
             pw.Spacer(),
-            pw.Center(child: pw.Text("Thank you for choosing us", style: pw.TextStyle(color: PdfColors.green, fontSize: 18))),
+            pw.Center(
+              child: pw.Text(
+                "Thank you for choosing us",
+                style: pw.TextStyle(color: PdfColors.green, fontSize: 18),
+              ),
+            ),
           ],
         );
       },

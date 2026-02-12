@@ -98,8 +98,14 @@ class RegisterTreatmentPage extends StatelessWidget {
                     )).toList(),
                     onChanged: (val) {
                       if (val != null) {
+                        // Update the local item for UI
                         item['id'] = val.id;
                         item['name'] = val.name;
+
+                        // ✅ Update selectedTreatmentId in controller
+                        controller.selectedTreatmentId.value = val.id;
+
+                        // Refresh the list to update UI
                         controller.selectedTreatmentsList.refresh();
                       }
                     },

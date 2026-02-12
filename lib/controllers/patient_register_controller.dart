@@ -96,7 +96,7 @@ class RegisterController extends GetxController {
     if (nameController.text.isEmpty || selectedBranchId.value == 0) {
       Get.snackbar(
         "Error",
-        "Please fill required fields: Name & Branch",
+        "Please fill required fields: Name and Branch are mandatory.",
         snackPosition: SnackPosition.BOTTOM,
       );
       return;
@@ -104,17 +104,21 @@ class RegisterController extends GetxController {
 
     final box = GetStorage();
     String? token = box.read('token');
-    isLoading.value = true;
 
     try {
+      isLoading.value = true;
+
+      // Prepare API request
       var uri = Uri.parse("${AppConfig.baseUrl}PatientUpdate");
       var request = http.MultipartRequest("POST", uri);
 
+      // Headers
       request.headers.addAll({
         "Authorization": "Bearer $token",
         "Accept": "application/json",
       });
 
+      // Fields
       request.fields.addAll({
         "name": nameController.text,
         "excecutive": "Staff_01",
@@ -126,44 +130,93 @@ class RegisterController extends GetxController {
         "advance_amount": advanceController.text,
         "balance_amount": balanceController.text,
         "date_nd_time": formattedDateTime,
-        "id": "0",
+        "id": "",
         "male": selectedTreatmentsList.isNotEmpty
             ? selectedTreatmentsList[0]['male'].toString()
             : "0",
         "female": selectedTreatmentsList.isNotEmpty
             ? selectedTreatmentsList[0]['female'].toString()
             : "0",
-        "branch": selectedBranchId.value.toString(),
-        "treatments": selectedTreatmentId.value.toString(),
+        "branch": selectedBranchId.value.toString(),        // ✅ use selectedBranchId
+        "treatments": selectedTreatmentId.value.toString(), // ✅ use selectedTreatmentId
       });
 
-      var streamedResponse = await request.send();
-      var response = await http.Response.fromStream(streamedResponse);
+      // Log request for debugging
+      request.fields.forEach((key, value) {
+        print("Request field -> $key: $value");
+      });
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        final jsonData = jsonDecode(response.body);
-        final invoice = PatientInvoice.fromJson(jsonData);
-        final pdfData = await generateInvoicePDF(invoice);
-        await Printing.layoutPdf(onLayout: (format) => pdfData);
-        Get.offAll(() => BookingListPage());
-      } else if (response.statusCode == 400) {
-        Get.snackbar("Bad Request", "Invalid data sent to server");
-      } else if (response.statusCode == 401) {
-        Get.snackbar("Unauthorized", "Token invalid or expired");
-      } else if (response.statusCode == 403) {
-        Get.snackbar("Forbidden", "Access denied");
-      } else if (response.statusCode == 404) {
-        Get.snackbar("Not Found", "API endpoint not found");
-      } else if (response.statusCode == 500) {
-        Get.snackbar("Server Error", "Internal server error");
+      // Send request
+      var streamedResponse = await request.send();
+      var responseString = await streamedResponse.stream.bytesToString();
+
+      // Log full response
+      print("API Response: $responseString");
+
+      final jsonData = responseString.isNotEmpty ? jsonDecode(responseString) : {};
+
+      if (streamedResponse.statusCode == 200 || streamedResponse.statusCode == 201) {
+        if (jsonData['status'] == true) {
+          // ✅ Only proceed if API says success
+
+
+// Create invoice from local data
+          // 1️⃣ Create PatientInvoice from local form & controller data
+          final invoice = PatientInvoice(
+            name: nameController.text,
+            executive: "Staff_01", // or dynamic if you have
+            payment: selectedPayment.value,
+            phone:whatsappController.text,
+            address: addressController.text,
+            totalAmount: double.tryParse(totalAmountController.text) ?? 0,
+            discountAmount: double.tryParse(discountController.text) ?? 0,
+            advanceAmount: double.tryParse(advanceController.text) ?? 0,
+            balanceAmount: double.tryParse(balanceController.text) ?? 0,
+            dateAndTime: formattedDateTime,
+            id: 0, // new patient, or existing patient ID if updating
+            male: selectedTreatmentsList.isNotEmpty
+                ? selectedTreatmentsList[0]['male'] ?? 0
+                : 0,
+            female: selectedTreatmentsList.isNotEmpty
+                ? selectedTreatmentsList[0]['female'] ?? 0
+                : 0,
+            branch: selectedBranchId.value,
+            treatments: selectedTreatmentId.value,
+          );
+
+// 2️⃣ Optional: log to verify
+          print("Generated PatientInvoice Data: ${invoice.toJson()}");
+
+// 3️⃣ Generate PDF
+          final pdfData = await generateInvoicePDF(invoice);
+          await Printing.layoutPdf(onLayout: (format) => pdfData);
+
+          Get.offAll(() => BookingListPage());
+        } else {
+          // API returned status: false
+          Get.snackbar(
+            "Error",
+            jsonData['message'] ?? "Unknown error from server",
+            snackPosition: SnackPosition.BOTTOM,
+          );
+        }
       } else {
+        // Handle other HTTP errors
         Get.snackbar(
-            "Error", "Unexpected error: ${response.statusCode}");
+          "Server Error",
+          "HTTP ${streamedResponse.statusCode}: ${jsonData['message'] ?? 'Something went wrong'}",
+          snackPosition: SnackPosition.BOTTOM,
+        );
       }
     } catch (e) {
-      Get.snackbar("Connection Error", "Failed to connect: $e");
+      // Handle network or JSON parsing errors
+      Get.snackbar(
+        "Connection Error",
+        "Failed to connect or parse response: $e",
+        snackPosition: SnackPosition.BOTTOM,
+      );
     } finally {
-      isLoading.value = false;
+      isLoading.value = false; // Hide loader
     }
   }
 
