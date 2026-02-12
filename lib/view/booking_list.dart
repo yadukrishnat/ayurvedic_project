@@ -20,16 +20,12 @@ class BookingListPage extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
 
               /// Top Bar
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: const [
-                  Icon(Icons.arrow_back),
-                  Icon(Icons.notifications_none),
-                ],
-              ),
+
+              Icon(Icons.notifications_none),
 
               const SizedBox(height: 20),
 
@@ -128,7 +124,7 @@ class BookingListPage extends StatelessWidget {
 
                         return BookingCard(
                           index: i + 1,
-                          name: p.name ?? "",
+                          name: p.name ,
                           treatment: p.patientDetails.isNotEmpty
                               ? p.patientDetails[0].treatmentName
                               : "",

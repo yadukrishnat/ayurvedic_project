@@ -161,16 +161,22 @@ class RegisterController extends GetxController {
       var response = await http.Response.fromStream(streamedResponse);
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        // 1. Show success snackbar
-        Get.snackbar("Success", "Patient Registered Successfully",
-            backgroundColor: Colors.green, colorText: Colors.white);
+
         final jsonData = jsonDecode(response.body);
 
-        // 3. Navigate away
-        Get.offAll(() => BookingListPage());
-        // 2. Generate and Preview PDF
-        final pdfData = await generateInvoicePDF(PatientInvoice.fromJson(jsonData));
-        await Printing.layoutPdf(onLayout: (format) async => pdfData);
+// 1️⃣ Convert JSON to model
+    final invoice = PatientInvoice.fromJson(jsonData);
+
+// 2️⃣ Generate PDF
+    final pdfData = await generateInvoicePDF(invoice);
+
+// 3️⃣ Optional: Preview/Print PDF
+    await Printing.layoutPdf(
+    onLayout: (format) => pdfData,
+    );
+
+// 4️⃣ Navigate away
+    Get.offAll(() => BookingListPage());
 
 
       } else {
