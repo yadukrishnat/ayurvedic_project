@@ -1,17 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 
 import '../controllers/patient_register_controller.dart';
 import 'app_text.dart';
 import 'app_textfield.dart';
 
 
-
 class DatePickerField extends StatelessWidget {
-  final dynamic controller;
-  final BuildContext context;
-
-  const DatePickerField({super.key, required this.controller, required this.context});
+  final RegisterController controller;
+  const DatePickerField({super.key, required this.controller});
 
   @override
   Widget build(BuildContext context) {
@@ -24,15 +22,17 @@ class DatePickerField extends StatelessWidget {
           onTap: () async {
             DateTime? picked = await showDatePicker(
               context: context,
-              initialDate: controller.treatmentDate.value ?? DateTime.now(),
+              initialDate: controller.selectedDate.value,
               firstDate: DateTime(2020),
               lastDate: DateTime(2100),
             );
-            if (picked != null) controller.setTreatmentDate(picked);
+            if (picked != null) controller.setSelectedDate(picked);
           },
           child: AbsorbPointer(
             child: AppTextField(
-              controller: TextEditingController(text: controller.formattedDate),
+              controller: TextEditingController(
+                text: DateFormat('dd/MM/yyyy').format(controller.selectedDate.value),
+              ),
               hint: 'Select date',
             ),
           ),

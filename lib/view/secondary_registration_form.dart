@@ -6,8 +6,8 @@ import '../widget/app_text.dart';
 import '../widget/app_textfield.dart';
 import '../widget/register_modules.dart';
 
-class RegisterScreen extends StatelessWidget {
-  RegisterScreen({super.key});
+class SecondaryRegistraionPage extends StatelessWidget {
+  SecondaryRegistraionPage({super.key});
 
   final RegisterController controller = Get.put(RegisterController());
   final double spacing = 12; // consistent spacing
@@ -52,7 +52,7 @@ class RegisterScreen extends StatelessWidget {
             buildField('Balance Amount', controller.balanceController),
 
             SizedBox(height: spacing),
-            DatePickerField(controller: controller, context: context),
+            DatePickerField(controller: controller, ),
             SizedBox(height: spacing),
             TimePickerField(controller: controller),
 
@@ -61,11 +61,12 @@ class RegisterScreen extends StatelessWidget {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () {
+                  controller.postRegister();
                   // handle save using controller data
                 },
                 child: const Text('Save'),
               ),
-            ),
+            ).paddingSymmetric(vertical: 10),
           ],
         ),
       ),

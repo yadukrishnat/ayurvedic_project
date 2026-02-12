@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../controllers/patient_controller.dart';
 import '../widget/app_text.dart';
 import '../widget/booking_card.dart';
+import 'add_patient_view.dart';
 
 class BookingListPage extends StatelessWidget {
 
@@ -140,7 +141,8 @@ class BookingListPage extends StatelessWidget {
                 width: double.infinity,
                 height: 50,
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {  Get.off(() =>
+                   RegisterTreatmentPage());},
                   style:
                   ElevatedButton.styleFrom(
                     backgroundColor:

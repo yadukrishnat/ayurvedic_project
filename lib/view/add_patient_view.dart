@@ -69,7 +69,7 @@ class RegisterTreatmentPage extends StatelessWidget {
                   height: 50,
                   child: ElevatedButton(
                     onPressed: (){
-                      Get.to(() => RegisterScreen());
+                      Get.to(() => SecondaryRegistraionPage());
 
                     },
                     child: Text('SAVE RECORD'),

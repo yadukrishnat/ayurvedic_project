@@ -20,8 +20,8 @@ class _SplashPageState extends State<SplashPage> {
 
     Timer(Duration(seconds: 3), () {
       Get.off(() =>
-          RegisterTreatmentPage());
-      //LoginPage());
+         // RegisterTreatmentPage());
+      LoginPage());
     });
   }
 
