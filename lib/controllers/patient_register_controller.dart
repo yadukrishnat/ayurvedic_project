@@ -163,7 +163,7 @@ class RegisterController extends GetxController {
           // 1️⃣ Create PatientInvoice from local form & controller data
           final invoice = PatientInvoice(
             name: nameController.text,
-            executive: "Staff_01", // or dynamic if you have
+            executive: staffController.text, // or dynamic if you have
             payment: selectedPayment.value,
             phone:whatsappController.text,
             address: addressController.text,
