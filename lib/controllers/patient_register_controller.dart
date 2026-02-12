@@ -143,15 +143,14 @@ class RegisterController extends GetxController {
 
       // Log request for debugging
       request.fields.forEach((key, value) {
-        print("Request field -> $key: $value");
+
       });
 
       // Send request
       var streamedResponse = await request.send();
       var responseString = await streamedResponse.stream.bytesToString();
 
-      // Log full response
-      print("API Response: $responseString");
+
 
       final jsonData = responseString.isNotEmpty ? jsonDecode(responseString) : {};
 
@@ -184,10 +183,7 @@ class RegisterController extends GetxController {
             treatments: selectedTreatmentId.value,
           );
 
-// 2️⃣ Optional: log to verify
-          print("Generated PatientInvoice Data: ${invoice.toJson()}");
 
-// 3️⃣ Generate PDF
           final pdfData = await generateInvoicePDF(invoice);
           await Printing.layoutPdf(onLayout: (format) => pdfData);
 
