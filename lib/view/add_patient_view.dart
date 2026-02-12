@@ -2,6 +2,7 @@ import 'package:ayurvedic/view/secondary_registration_form.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/patient_register_controller.dart';
+import '../model/treatment_model.dart';
 
 class RegisterTreatmentPage extends StatelessWidget {
   final controller = Get.put(RegisterController());
@@ -30,13 +31,27 @@ class RegisterTreatmentPage extends StatelessWidget {
                       padding: const EdgeInsets.all(12.0),
                       child: Column(
                         children: [
-                          DropdownButtonFormField<String>(
-                            value: item['name'].isEmpty ? null : item['name'],
-                            hint: Text("Select Treatment"),
-                            items: controller.treatments
-                                .map((t) => DropdownMenuItem(value: t, child: Text(t)))
-                                .toList(),
-                            onChanged: (val) => controller.updateTreatmentName(index, val!),
+                          DropdownButtonFormField<Treatment>(
+                            value: item['id'] == 0
+                                ? null
+                                : controller.treatmentList.firstWhere(
+                                  (t) => t.id == item['id'],
+                              orElse: () => controller.treatmentList[0], // cannot return null
+                            ),
+                            hint: const Text("Select Treatment"),
+                            items: controller.treatmentList.map((Treatment t) {
+                              return DropdownMenuItem<Treatment>(
+                                value: t,
+                                child: Text("${t.name} (${t.duration}) - ₹${t.price}"),
+                              );
+                            }).toList(),
+                            onChanged: (Treatment? val) {
+                              if (val != null) {
+                                controller.selectedTreatmentsList[index]['id'] = val.id;
+                                controller.selectedTreatmentsList[index]['name'] = val.name;
+                                controller.selectedTreatmentsList.refresh();
+                              }
+                            },
                           ),
                           counterRow(
                             "Male",
@@ -69,6 +84,7 @@ class RegisterTreatmentPage extends StatelessWidget {
                   height: 50,
                   child: ElevatedButton(
                     onPressed: (){
+
                       Get.to(() => SecondaryRegistraionPage());
 
                     },

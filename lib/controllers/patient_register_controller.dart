@@ -7,12 +7,15 @@ import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http; // Fixed import: Removed 'show post' to allow MultipartRequest
 import 'package:intl/intl.dart';
 
+import '../model/branch_response_model.dart';
+import '../model/treatment_model.dart';
+
 class RegisterController extends GetxController {
   // Static Data
   final locations = ['Kochi', 'Trivandrum', 'Calicut'];
-  final branches = ['Edappali', 'Kakkanad', 'Ernakulam'];
+  var branchList = <Branch>[].obs;
   final paymentOptions = ['Cash', 'Card', 'UPI'];
-  final treatments = ['Treatment A', 'Treatment B', 'Treatment C'];
+  var treatmentList = <Treatment>[].obs;
 
   // Form Field Controllers
   final nameController = TextEditingController();
@@ -29,12 +32,20 @@ class RegisterController extends GetxController {
   var selectedPayment = 'Cash'.obs;
   var selectedDate = DateTime.now().obs;      // stores the picked date
   var treatmentTime = TimeOfDay.now().obs;
-
+  var selectedBranchId = 0.obs;
+  var selectedTreatmentId = 0.obs;
+  var selectedTreatmentsList = <Map<String, dynamic>>[].obs;
   var formattedDate = ''.obs;
   var isLoading = false.obs;
 
-  var selectedTreatmentsList = <Map<String, dynamic>>[].obs;
 
+  @override
+  void onInit() {
+    super.onInit();
+    fetchTreatments();
+    fetchBranches();
+    // optional if you want treatment names
+  }
   void addTreatment() {
     selectedTreatmentsList.add({
       'name': '',
@@ -65,8 +76,8 @@ class RegisterController extends GetxController {
     selectedTreatmentsList.refresh();
   }
 
-  void updateTreatmentName(int index, String name) {
-    selectedTreatmentsList[index]['name'] = name;
+  void updateTreatmentName(int index, String id) {
+    selectedTreatmentsList[index]['name'] = id;
     selectedTreatmentsList.refresh();
   }
 
@@ -88,8 +99,15 @@ class RegisterController extends GetxController {
   }
 
   Future<void> postRegister() async {
-    if (nameController.text.isEmpty || selectedBranch.value == null) {
-      Get.snackbar("Error", "Please fill required fields", snackPosition: SnackPosition.BOTTOM);
+    if (nameController.text.isEmpty || selectedBranch.value == 0) {
+      // log actual values
+      log("Name: ${nameController.text}, Branch: ${selectedBranch.value}");
+
+      Get.snackbar(
+        "Error",
+        "Please fill required fields: Name = ${nameController.text}, Branch = ${selectedBranch.value}",
+        snackPosition: SnackPosition.BOTTOM,
+      );
       return;
     }
 
@@ -129,7 +147,7 @@ class RegisterController extends GetxController {
             ? selectedTreatmentsList[0]['female'].toString()
             : "0",
         "branch":  "166",
-        "treatments": "Head Massage",
+        "treatments": selectedBranchId.value.toString(),
       });
 
       log("Fields being sent: ${request.fields}");
@@ -152,4 +170,63 @@ class RegisterController extends GetxController {
       isLoading.value = false;
     }
   }
+
+  Future<void> fetchBranches() async {
+    final url = Uri.parse("https://flutter-amr.noviindus.in/api/BranchList");
+    final box = GetStorage();
+    String? token = box.read('token');
+    try {
+      final response = await http.get(
+        url,
+        headers: {"Authorization": "Bearer $token"},
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final branchResponse = BranchResponse.fromJson(data);
+        branchList.value = branchResponse.branches;
+      } else {
+        print("BranchList Error: ${response.statusCode}");
+      }
+    } catch (e) {
+      print("BranchList Exception: $e");
+    }
+  }
+
+  void setSelectedBranch(int id) {
+    selectedBranchId.value = id;
+  }
+
+  Future<void> fetchTreatments() async {
+    final url = Uri.parse("https://flutter-amr.noviindus.in/api/TreatmentList");
+    final box = GetStorage();
+    String? token = box.read('token');
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer $token",
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['status'] == true && data['treatments'] != null) {
+          treatmentList.value = List<Treatment>.from(
+            data['treatments'].map((x) => Treatment.fromJson(x)),
+          );
+        }
+      } else {
+        print("Treatment API Error: ${response.statusCode}");
+      }
+    } catch (e) {
+      print("Treatment API Exception: $e");
+    }
+  }
+
+  void setSelectedTreatment(int id) {
+    selectedTreatmentId.value = id;
+  }
+
 }

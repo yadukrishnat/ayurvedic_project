@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
 import '../controllers/patient_register_controller.dart';
+import '../model/branch_response_model.dart';
 import 'app_text.dart';
 import 'app_textfield.dart';
 
@@ -111,18 +112,35 @@ class LocationDropdown extends StatelessWidget {
 
 class BranchDropdown extends StatelessWidget {
   final RegisterController controller;
+
   const BranchDropdown({super.key, required this.controller});
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() => DropdownButtonFormField<String>(
-      value: controller.selectedBranch.value,
-      items: controller.branches
-          .map((b) => DropdownMenuItem(value: b, child: Text(b)))
-          .toList(),
-      onChanged: (val) => controller.selectedBranch.value = val,
-      decoration: const InputDecoration(border: OutlineInputBorder(), hintText: 'Select the branch'),
-    ));
+    return Obx(() {
+      if (controller.branchList.isEmpty) {
+        return const Center(child: CircularProgressIndicator());
+      }
+
+      return DropdownButtonFormField<int>(
+        value: controller.selectedBranchId.value == 0
+            ? null
+            : controller.selectedBranchId.value,
+        items: controller.branchList.map((Branch b) {
+          return DropdownMenuItem<int>(
+            value: b.id,           // branch ID
+            child: Text(b.name),   // branch name
+          );
+        }).toList(),
+        onChanged: (val) {
+          if (val != null) controller.selectedBranchId.value = val;
+        },
+        decoration: const InputDecoration(
+          border: OutlineInputBorder(),
+          hintText: 'Select the branch',
+        ),
+      );
+    });
   }
 }
 
