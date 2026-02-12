@@ -22,16 +22,14 @@ class PatientController extends GetxController {
     super.onInit();
   }
 
-  void fetchPatients() async {
-    final box = GetStorage();
-    log("function working>...");
-    String? token = box.read('token');
+  Future<void>  fetchPatients() async {
+
 
     try {
       isLoading.value = true;
 
 
-      var data = await getPatients(token);
+      var data = await getPatients();
       if (data.isNotEmpty) {
         patients.value = data;
         Get.to(() => BookingListPage());
@@ -43,7 +41,10 @@ class PatientController extends GetxController {
     }
   }
 
-  static Future<List<PatientModel>> getPatients(String? token) async {
+  static Future<List<PatientModel>> getPatients() async {
+    final box = GetStorage();
+    log("function working>...");
+    String? token = box.read('token');
     final response = await http.get(
       Uri.parse("https://flutter-amr.noviindus.in/api/PatientList"),
       headers: {

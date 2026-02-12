@@ -59,15 +59,40 @@ class SecondaryRegistraionPage extends StatelessWidget {
             SizedBox(height: spacing * 2),
             SizedBox(
               width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  controller.postRegister();
-                  // handle save using controller data
-                },
-                child: const Text('Save'),
+              child: Obx(
+                    () => ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green[700],
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                  ),
+                  onPressed: controller.isLoading.value
+                      ? null // disable button while loading
+                      : () {
+                    controller.postRegister();
+                  },
+                  child: controller.isLoading.value
+                      ? const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(
+                      color: Colors.white,
+                      strokeWidth: 2,
+                    ),
+                  )
+                      : const AppText(
+                    'Save',
+                    size: 16,
+                    weight: FontWeight.w600,
+                    color: Colors.white,
+                    align: TextAlign.center,
+                  ),
+                ),
               ),
-            ).paddingSymmetric(vertical: 10),
-          ],
+            ),],
         ),
       ),
     );

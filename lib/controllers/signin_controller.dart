@@ -1,4 +1,3 @@
-
 import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
@@ -10,17 +9,20 @@ import 'package:http/http.dart' as http show MultipartRequest;
 
 import '../services/storage_service.dart';
 
-class SignInController extends GetxController{
+class SignInController extends GetxController {
   final emailController = TextEditingController();
   final passController = TextEditingController();
 
+  // loader observable
+  var isLoading = false.obs;
+
   Future<void> login() async {
     try {
-      var url = Uri.parse("https://flutter-amr.noviindus.in/api/Login");
+      isLoading.value = true; // start loader
 
+      var url = Uri.parse("https://flutter-amr.noviindus.in/api/Login");
       var request = http.MultipartRequest("POST", url);
 
-      // Form-data
       request.fields['username'] = emailController.text.trim();
       request.fields['password'] = passController.text.trim();
 
@@ -30,48 +32,35 @@ class SignInController extends GetxController{
         const Duration(seconds: 30),
       );
 
-      log("Status Code: ${response.statusCode}");
-
       var responseString = await response.stream.bytesToString();
-      log("Raw Response: $responseString");
-
-      var data = responseString.isNotEmpty
-          ? jsonDecode(responseString)
-          : {};
-
-      /// ✅ IF CONDITIONS
+      var data = responseString.isNotEmpty ? jsonDecode(responseString) : {};
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         log("✅ Login Success");
-        log("$data");
         StorageService.saveToken(data['token']);
-        Get.put(PatientController()).fetchPatients();
-      } else if (response.statusCode == 400) {
-        log("❌ Bad Request");
-        log("$data");
 
-      } else if (response.statusCode == 401) {
-        log("❌ Unauthorized - Wrong credentials");
+        // Initialize PatientController and wait for patients to load
+        final patientController = Get.put(PatientController());
+        await patientController.fetchPatients(); // await completion
 
-      } else if (response.statusCode == 403) {
-        log("❌ Forbidden");
-
-      } else if (response.statusCode == 404) {
-        log("❌ API Not Found");
-
-      } else if (response.statusCode == 500) {
-        log("❌ Server Error");
+        // After patients are fetched and page is loaded, stop loader
+        isLoading.value = false;
 
       } else {
-        log("⚠️ Unknown Status Code: ${response.statusCode}");
-        log("$data");
+        log("❌ Login Failed: ${response.statusCode} $data");
+        Get.snackbar(
+          "Error",
+          "Login failed. Check credentials.",
+          snackPosition: SnackPosition.BOTTOM,
+        );
+        isLoading.value = false;
       }
-
     } on TimeoutException {
       log("⏰ Request Timeout");
-
+      isLoading.value = false;
     } catch (e) {
       log("🔥 Unknown Error: $e");
+      isLoading.value = false;
     }
   }
 }

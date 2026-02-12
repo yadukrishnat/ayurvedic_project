@@ -9,6 +9,7 @@ import 'package:intl/intl.dart';
 
 import '../model/branch_response_model.dart';
 import '../model/treatment_model.dart';
+import '../view/booking_list.dart';
 
 class RegisterController extends GetxController {
   // Static Data
@@ -159,6 +160,7 @@ class RegisterController extends GetxController {
       if (response.statusCode == 200 || response.statusCode == 201) {
         Get.snackbar("Success", "Patient Registered Successfully",
             backgroundColor: Colors.green, colorText: Colors.white);
+        Get.offAll(() => BookingListPage());
       } else {
         log("Server Error Body: ${response.body}");
         Get.snackbar("Error", "Server Error: ${response.statusCode}");
