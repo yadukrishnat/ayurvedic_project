@@ -6,6 +6,7 @@ import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 
+import '../config.dart';
 import '../model/patient_model.dart';
 import '../view/booking_list.dart';
 
@@ -46,7 +47,7 @@ class PatientController extends GetxController {
     log("function working>...");
     String? token = box.read('token');
     final response = await http.get(
-      Uri.parse("https://flutter-amr.noviindus.in/api/PatientList"),
+      Uri.parse("${AppConfig.baseUrl}PatientList"),
       headers: {
         "Authorization": "Bearer $token",
       },

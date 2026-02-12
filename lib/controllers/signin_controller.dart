@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http show MultipartRequest;
 
+import '../config.dart';
 import '../services/storage_service.dart';
 
 class SignInController extends GetxController {
@@ -20,7 +21,7 @@ class SignInController extends GetxController {
     try {
       isLoading.value = true; // start loader
 
-      var url = Uri.parse("https://flutter-amr.noviindus.in/api/Login");
+      var url = Uri.parse("${AppConfig.baseUrl}Login");
       var request = http.MultipartRequest("POST", url);
 
       request.fields['username'] = emailController.text.trim();

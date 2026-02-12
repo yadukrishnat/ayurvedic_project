@@ -8,6 +8,7 @@ import 'package:http/http.dart' as http; // Fixed import: Removed 'show post' to
 import 'package:intl/intl.dart';
 import 'package:printing/printing.dart';
 
+import '../config.dart';
 import '../model/branch_response_model.dart';
 import '../model/patient_invoice_model.dart';
 import '../model/treatment_model.dart';
@@ -122,7 +123,7 @@ class RegisterController extends GetxController {
       isLoading.value = true;
 
       // Initialize MultipartRequest for Form Data
-      var uri = Uri.parse("https://flutter-amr.noviindus.in/api/PatientUpdate");
+      var uri = Uri.parse("${AppConfig.baseUrl}PatientUpdate");
       var request = http.MultipartRequest("POST", uri); // Changed 'url' to 'uri' to match your variable
 
       // 1. Add Headers
