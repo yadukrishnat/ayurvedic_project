@@ -28,7 +28,7 @@ class RegisterController extends GetxController {
   final discountController = TextEditingController();
   final advanceController = TextEditingController();
   final balanceController = TextEditingController();
-
+  final staffController = TextEditingController();
   // Observable Selections
   var selectedLocation = RxnString();
   var selectedBranch = RxnString();
@@ -121,7 +121,7 @@ class RegisterController extends GetxController {
       // Fields
       request.fields.addAll({
         "name": nameController.text,
-        "excecutive": "Staff_01",
+        "excecutive": staffController.text,
         "payment": selectedPayment.value,
         "phone": whatsappController.text,
         "address": addressController.text,

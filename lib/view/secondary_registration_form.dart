@@ -27,6 +27,7 @@ class SecondaryRegistraionPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             buildField('Name', controller.nameController),
+            buildField('Staff Exective', controller.staffController),
             buildField('Whatsapp Number', controller.whatsappController),
             buildField('Address', controller.addressController),
 
