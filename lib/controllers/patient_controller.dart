@@ -56,7 +56,7 @@ class PatientController extends GetxController {
     if (response.statusCode == 200) {
       final decoded = jsonDecode(response.body);
 
-      print("BODY: $decoded");
+
 
       // ✅ Case 1: Direct list
       if (decoded is List) {

@@ -1,14 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:developer';
-
-import 'package:ayurvedic/controllers/patient_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http show MultipartRequest;
 
 import '../config.dart';
 import '../services/storage_service.dart';
+import 'patient_controller.dart';
 
 class SignInController extends GetxController {
   final emailController = TextEditingController();
@@ -18,49 +16,106 @@ class SignInController extends GetxController {
   var isLoading = false.obs;
 
   Future<void> login() async {
-    try {
-      isLoading.value = true; // start loader
+    final username = emailController.text.trim();
+    final password = passController.text.trim();
 
+    if (username.isEmpty || password.isEmpty) {
+      Get.snackbar(
+        "Error",
+        "Please enter both username and password.",
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return;
+    }
+
+    isLoading.value = true; // start loader
+
+    try {
       var url = Uri.parse("${AppConfig.baseUrl}Login");
       var request = http.MultipartRequest("POST", url);
 
-      request.fields['username'] = emailController.text.trim();
-      request.fields['password'] = passController.text.trim();
+      request.fields['username'] = username;
+      request.fields['password'] = password;
 
-      log("API Called");
-
-      var response = await request.send().timeout(
+      var streamedResponse = await request.send().timeout(
         const Duration(seconds: 30),
       );
 
-      var responseString = await response.stream.bytesToString();
-      var data = responseString.isNotEmpty ? jsonDecode(responseString) : {};
+      final responseString = await streamedResponse.stream.bytesToString();
+      final data =
+      responseString.isNotEmpty ? jsonDecode(responseString) : {};
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        log("✅ Login Success");
-        StorageService.saveToken(data['token']);
+      // ✅ Successful login
+      if (streamedResponse.statusCode == 200 || streamedResponse.statusCode == 201) {
+        if (data['token'] != null && data['token'].toString().isNotEmpty) {
+          StorageService.saveToken(data['token']);
 
-        // Initialize PatientController and wait for patients to load
-        final patientController = Get.put(PatientController());
-        await patientController.fetchPatients(); // await completion
+          // Fetch patients after login
+          final patientController = Get.put(PatientController());
+          await patientController.fetchPatients();
 
-        // After patients are fetched and page is loaded, stop loader
-        isLoading.value = false;
+        } else {
+          Get.snackbar(
+            "Login Failed",
+            "Token not received. Please try again.",
+            snackPosition: SnackPosition.BOTTOM,
+          );
+        }
 
-      } else {
-        log("❌ Login Failed: ${response.statusCode} $data");
+      }
+      // ❌ Invalid credentials
+      else if (streamedResponse.statusCode == 400 || streamedResponse.statusCode == 401) {
         Get.snackbar(
-          "Error",
-          "Login failed. Check credentials.",
+          "Invalid Credentials",
+          "Username or password is incorrect.",
           snackPosition: SnackPosition.BOTTOM,
         );
-        isLoading.value = false;
+      }
+      // ❌ Forbidden
+      else if (streamedResponse.statusCode == 403) {
+        Get.snackbar(
+          "Access Denied",
+          "You do not have permission to login.",
+          snackPosition: SnackPosition.BOTTOM,
+        );
+      }
+      // ❌ Not Found
+      else if (streamedResponse.statusCode == 404) {
+        Get.snackbar(
+          "Not Found",
+          "Login endpoint not found.",
+          snackPosition: SnackPosition.BOTTOM,
+        );
+      }
+      // ❌ Server error
+      else if (streamedResponse.statusCode == 500) {
+        Get.snackbar(
+          "Server Error",
+          "Internal server error. Please try later.",
+          snackPosition: SnackPosition.BOTTOM,
+        );
+      }
+      // ❌ Other errors
+      else {
+        Get.snackbar(
+          "Error",
+          "Unexpected error: ${streamedResponse.statusCode}",
+          snackPosition: SnackPosition.BOTTOM,
+        );
       }
     } on TimeoutException {
-      log("⏰ Request Timeout");
-      isLoading.value = false;
+      Get.snackbar(
+        "Timeout",
+        "Request timed out. Check your internet connection.",
+        snackPosition: SnackPosition.BOTTOM,
+      );
     } catch (e) {
-      log("🔥 Unknown Error: $e");
+      Get.snackbar(
+        "Error",
+        "An error occurred: $e",
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } finally {
       isLoading.value = false;
     }
   }

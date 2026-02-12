@@ -145,7 +145,7 @@ class BookingListPage extends StatelessWidget {
                 height: 50,
                 child: ElevatedButton(
                   onPressed: () {
-                    Get.off(() => RegisterTreatmentPage());
+                    Get.to(() => RegisterTreatmentPage());
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.green[800],

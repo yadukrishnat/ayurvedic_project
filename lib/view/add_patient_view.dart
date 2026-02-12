@@ -20,13 +20,20 @@ class RegisterTreatmentPage extends StatelessWidget {
         if (didPop) return;
         Get.back(); // Manually navigate back using GetX
       },
+
       child: Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
-          title: const AppText('Add Treatments', size: 18, weight: FontWeight.w600),
-          elevation: 0,
-          backgroundColor: Colors.white,
-        ),
+      title: const AppText('Add Treatments', size: 18, weight: FontWeight.w600),
+      elevation: 0,
+      backgroundColor: Colors.white,
+      leading: IconButton(
+        icon: const Icon(Icons.arrow_back, color: Colors.black),
+        onPressed: () {
+          Get.back(); // Navigate back to previous screen
+        },
+      ),
+    ),
         body: Obx(() {
           return Column(
             children: [
@@ -67,28 +74,37 @@ class RegisterTreatmentPage extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: DropdownButtonFormField<Treatment>(
-                  isExpanded: true, // Prevents text overflow in dropdown
-                  decoration: InputDecoration(
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 12),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                    fillColor: Colors.white,
-                    filled: true,
-                  ),
-                  value: controller.treatmentList.firstWhereOrNull((t) => t.id == item['id']),
-                  hint: const AppText("Select Treatment", size: 14),
-                  items: controller.treatmentList.map((t) => DropdownMenuItem(
-                    value: t,
-                    child: Text("${t.name} - ₹${t.price}", overflow: TextOverflow.ellipsis),
-                  )).toList(),
-                  onChanged: (val) {
-                    if (val != null) {
-                      item['id'] = val.id;
-                      item['name'] = val.name;
-                      controller.selectedTreatmentsList.refresh();
-                    }
-                  },
-                ),
+                child: Obx(() {
+                  // Show loader while treatmentList is empty or isLoading is true
+                  if (controller.isLoading.value && controller.treatmentList.isEmpty) {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  }
+
+                  return DropdownButtonFormField<Treatment>(
+                    isExpanded: true, // Prevents text overflow in dropdown
+                    decoration: InputDecoration(
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                      fillColor: Colors.white,
+                      filled: true,
+                    ),
+                    value: controller.treatmentList.firstWhereOrNull((t) => t.id == item['id']),
+                    hint: const AppText("Select Treatment", size: 14),
+                    items: controller.treatmentList.map((t) => DropdownMenuItem(
+                      value: t,
+                      child: Text("${t.name} - ₹${t.price}", overflow: TextOverflow.ellipsis),
+                    )).toList(),
+                    onChanged: (val) {
+                      if (val != null) {
+                        item['id'] = val.id;
+                        item['name'] = val.name;
+                        controller.selectedTreatmentsList.refresh();
+                      }
+                    },
+                  );
+                })
               ),
               if (controller.selectedTreatmentsList.length > 1)
                 IconButton(
