@@ -6,9 +6,12 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http; // Fixed import: Removed 'show post' to allow MultipartRequest
 import 'package:intl/intl.dart';
+import 'package:printing/printing.dart';
 
 import '../model/branch_response_model.dart';
+import '../model/patient_invoice_model.dart';
 import '../model/treatment_model.dart';
+import '../services/pdf_view.dart';
 import '../view/booking_list.dart';
 
 class RegisterController extends GetxController {
@@ -158,9 +161,18 @@ class RegisterController extends GetxController {
       var response = await http.Response.fromStream(streamedResponse);
 
       if (response.statusCode == 200 || response.statusCode == 201) {
+        // 1. Show success snackbar
         Get.snackbar("Success", "Patient Registered Successfully",
             backgroundColor: Colors.green, colorText: Colors.white);
+        final jsonData = jsonDecode(response.body);
+
+        // 3. Navigate away
         Get.offAll(() => BookingListPage());
+        // 2. Generate and Preview PDF
+        final pdfData = await generateInvoicePDF(PatientInvoice.fromJson(jsonData));
+        await Printing.layoutPdf(onLayout: (format) async => pdfData);
+
+
       } else {
         log("Server Error Body: ${response.body}");
         Get.snackbar("Error", "Server Error: ${response.statusCode}");
